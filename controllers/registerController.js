@@ -2,7 +2,7 @@ const db = require('../config/db');
 
 class RegisterController {
     create(req, res) {
-        const { description, entry, output, date, typeInvestimentID, brokerID, tagID} = req.body;
+        const { description, entry, output, date, } = req.body;
         const { userID } = req.params;
 
         db.query("INSERT INTO register (description, entry, output, date, userID) VALUES (?, ?, ?, ?, ?)", [description, entry, output, date, userID], (err, result) => {
@@ -14,7 +14,7 @@ class RegisterController {
         })
     }
     list(req, res) {
-        db.query("SELECT *, date_format(register.date, '%d/%m/%Y') as dataFormatada,  date_format(register.date, '%Y/%d/%m') as dataNãoFormatada FROM register", (err, result) => {
+        db.query("SELECT *,   date_format(register.date, '%d/%m/%Y') as dataFormatada,  date_format(register.date, '%Y/%d/%m') as dataNãoFormatada FROM register", (err, result) => {
             if (err) {
                 res.status(500).json(err);
             } else {
@@ -28,7 +28,7 @@ class RegisterController {
         db.query("SELECT * FROM register WHERE registerID = ?", [registerID], (err, result) => {
             if (err) {
                 res.status(500).json(err);
-            } else{
+            } else {
                 res.json(result);
             }
         })
@@ -40,21 +40,28 @@ class RegisterController {
             if (err) {
                 res.status(500).json(err);
             } else {
-                res.status(200).json({message: "Excluido com sucesso"});
+                res.status(200).json({ message: "Excluido com sucesso" });
             }
         })
     }
     update(req, res) {
         const { registerID } = req.params;
-        const { descriptionUpdate, entryUpdate, outputUpdate, dataUpdate } = req.body; 
+        const { descriptionUpdate, entryUpdate, outputUpdate, dataUpdate } = req.body;
 
-        db.query("UPDATE register SET description = ?, entry = ?, output = ?, date = ? WHERE registerID = ?", [descriptionUpdate, entryUpdate, outputUpdate, dataUpdate, registerID], (err, result) => {
+        const dateObject = new Date(dataUpdate);
+        const year = dateObject.getFullYear();
+        const month = String(dateObject.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObject.getDate()).padStart(2, '0');
+        const formattedDate = `${year}-${month}-${day}`;
+
+        db.query("UPDATE register SET description = ?, entry = ?, output = ?, `date` = ? WHERE registerID = ?", [descriptionUpdate, entryUpdate, outputUpdate, formattedDate, registerID], (err, result) => {
             if (err) {
-                res.json({message: err.message})
-            } else{
-                res.json({message: "Dados atualizados com sucesso"})
+                res.json({ message: err.message });
+            } else {
+                res.json({ message: "Dados atualizados com sucesso" });
             }
-        })
+        });
+
     }
 }
 

@@ -4,7 +4,7 @@ const routes = Router();
 const registerRouter = require("./registerRoutes");
 
 
-routes.use("/", registerRouter);
+routes.use("/api/", registerRouter);
 
 
 module.exports = routes;
